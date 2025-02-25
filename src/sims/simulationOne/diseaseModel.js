@@ -12,21 +12,25 @@ You can implement a simple model which does one of the following:
 
 2. Take the "handshake" simulation code as your model, but make it so you can recover from the disease. How does the
 spread of the disease change when you set people to recover after a set number of days.
+  In our simulation, we want each person to get sick after X amount of days after being infected, and recover from the
+  sickness after Y amount of days/weeks both variables controlled by sliders.
 
 3. Add a "quarantine" percentage to the handshake model: if a person is infected, they have a chance of being quarantined
 and not interacting with others in each round.
+  Once the person "realizes" they are infected, they will have a Z chance of quarentining until they have recovered.
 
 */
 
 /**
- * Authors: 
+ * Authors: Owen K + Billy L <3
  * 
  * What we are simulating:
+ *  sickness
  * 
  * What elements we have to add:
- * 
+ *  incubation period, recovery period, quarentine period, infectiousness
  * In plain language, what our model does:
- * 
+ *  It will simulate a sickness that can be recovered from over a period of time, and spread.
  */
 
 
@@ -107,17 +111,6 @@ export const updatePopulation = (population, params) => {
 export const trackedStats = [
   { label: "Total Infected", value: "infected" },
 ];
-
-// Example: Compute stats (students customize)
-export const computeStatistics = (population, round) => {
-  let infected = 0;
-  for (let p of population) {
-    if (p.infected) {
-      infected += 1; // Count the infected
-    }
-  }
-  return { round, infected };
-};
 
 
 // Example: Compute stats (students customize)
