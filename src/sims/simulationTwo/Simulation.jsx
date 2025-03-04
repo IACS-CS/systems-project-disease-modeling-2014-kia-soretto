@@ -9,12 +9,9 @@ import {
 import { renderChart } from "../../lib/renderChart";
 import { renderTable } from "../../lib/renderTable";
 
-let boxSize = 500; // World box size in pixels
-let maxSize = 1000; // Max number of icons we render (we can simulate big populations, but don't render them all...)
+let boxSize = 500;
+let maxSize = 1000;
 
-/**
- * Renders a subset of the population as a list of patients with emojis indicating their infection status.
- */
 const renderPatients = (population) => {
   let amRenderingSubset = population.length > maxSize;
   const popSize = population.length;
@@ -23,10 +20,12 @@ const renderPatients = (population) => {
   }
 
   function renderEmoji(p) {
-    if (p.newlyInfected) {
-      return "🤧"; // Sneezing Face for new cases
+    if (p.incubationCountdown > 0) {
+      return "😷"; // Mask Face during incubation
+    } else if (p.recoveryCountdown > 0) {
+      return "🤢"; // Vomiting Face when contagious
     } else if (p.infected) {
-      return "🤢"; // Vomiting Face for already sick
+      return "🤧"; // Sneezing Face
     } else {
       return "😀"; // Healthy person
     }
@@ -78,7 +77,6 @@ const Simulation = () => {
     defaultSimulationParameters
   );
 
-  // Runs a single simulation step
   const runTurn = () => {
     let newPopulation = updatePopulation([...population], simulationParameters);
     setPopulation(newPopulation);
@@ -86,13 +84,11 @@ const Simulation = () => {
     setDiseaseData([...diseaseData, newStats]);
   };
 
-  // Resets the simulation
   const resetSimulation = () => {
     setPopulation(createPopulation(popSize * popSize));
     setDiseaseData([]);
   };
 
-  // Auto-run simulation effect
   useEffect(() => {
     if (autoMode) {
       setTimeout(runTurn, 500);
@@ -102,11 +98,10 @@ const Simulation = () => {
   return (
     <div>
       <section className="top">
-        <h1>My Second Custom Simulation</h1>
+        <h1>Influenza Simulation</h1>
         <p>
-          Edit <code>simulationTwo/diseaseModel.js</code> to define how your
-          simulation works. This one should try to replicate features of a real
-          world illness and/or intervention.
+          Simulating the spread of influenza with incubation and recovery
+          periods!
         </p>
 
         <p>
@@ -120,35 +115,47 @@ const Simulation = () => {
         <button onClick={resetSimulation}>Reset Simulation</button>
 
         <div>
-          {/* Add custom parameters here... */}
           <label>
-            Population:
-            <div className="vertical-stack">
-              {/* Population uses a "square" size to allow a UI that makes it easy to slide
-          from a small population to a large one. */}
-              <input
-                type="range"
-                min="3"
-                max="1000"
-                value={popSize}
-                onChange={(e) => setPopSize(parseInt(e.target.value))}
-              />
-              <input
-                type="number"
-                value={Math.round(popSize * popSize)}
-                step="10"
-                onChange={(e) =>
-                  setPopSize(Math.sqrt(parseInt(e.target.value)))
-                }
-              />
-            </div>
+            Incubation Period:
+            <input
+              type="number"
+              value={simulationParameters.incubationPeriod}
+              onChange={(e) =>
+                setSimulationParameters({
+                  ...simulationParameters,
+                  incubationPeriod: parseInt(e.target.value),
+                })
+              }
+            />
+          </label>
+
+          <label>
+            Recovery Period:
+            <input
+              type="number"
+              value={simulationParameters.recoveryPeriod}
+              onChange={(e) =>
+                setSimulationParameters({
+                  ...simulationParameters,
+                  recoveryPeriod: parseInt(e.target.value),
+                })
+              }
+            />
+          </label>
+
+          <label>
+            Population Size:
+            <input
+              type="number"
+              value={Math.round(popSize * popSize)}
+              onChange={(e) => setPopSize(Math.sqrt(parseInt(e.target.value)))}
+            />
           </label>
         </div>
       </section>
 
       <section className="side-by-side">
         {renderChart(diseaseData, lineToGraph, setLineToGraph, trackedStats)}
-
         <div className="world">
           <div
             className="population-box"
@@ -157,7 +164,6 @@ const Simulation = () => {
             {renderPatients(population)}
           </div>
         </div>
-
         {renderTable(diseaseData, trackedStats)}
       </section>
     </div>

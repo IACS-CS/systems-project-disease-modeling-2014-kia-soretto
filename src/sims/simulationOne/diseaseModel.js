@@ -1,57 +1,30 @@
 import { shufflePopulation } from "../../lib/shufflePopulation";
 
-/* Update this code to simulate a simple disease model! */
+// Update this code to simulate a simple disease model!
 
-/* For this simulation, let's consider a simple disease that spreads through contact.
-You can implement a simple model which does one of the following:
-
-1. Model the different effects of different numbers of contacts: in my Handshake Model, two people are in 
-   contact each round. What happens if you put three people in contact? Four? Five? Consider different options
-   such as always putting people in contact with the people "next" to them (i.e. the people before or after them
-   in line) or randomly selecting people to be in contact (just do one of these for your model).
-
-2. Take the "handshake" simulation code as your model, but make it so you can recover from the disease. How does the
-spread of the disease change when you set people to recover after a set number of days.
-  In our simulation, we want each person to get sick after X amount of days after being infected, and recover from the
-  sickness after Y amount of days/weeks both variables controlled by sliders.
-
-3. Add a "quarantine" percentage to the handshake model: if a person is infected, they have a chance of being quarantined
-and not interacting with others in each round.
-  Once the person "realizes" they are infected, they will have a Z chance of quarentining until they have recovered.
-
-*/
-
-/**
- * Authors: Owen K + Billy L <3
- * 
- * What we are simulating:
- *  sickness
- * 
- * What elements we have to add:
- *  incubation period, recovery period, quarentine period, infectiousness
- * In plain language, what our model does:
- *  It will simulate a sickness that can be recovered from over a period of time, and spread.
- */
-
-
+// For this simulation, let's consider a simple disease that spreads through contact.
+// You can implement a simple model which does one of the following:
+// ...
 
 export const defaultSimulationParameters = {
   infectionChance: 50,
+  incubationPeriod: 3, // Number of days for incubation period
   // Add any new parameters you want here with their initial values
-  //  -- you will also have to add inputs into your jsx file if you want
+  // -- you will also have to add inputs into your jsx file if you want
   // your user to be able to change these parameters.
 };
 
-/* Creates your initial population. By default, we *only* track whether people
+/* Creates your initial population. By default, we only track whether people
 are infected. Any other attributes you want to track would have to be added
 as properties on your initial individual. 
 
 For example, if you want to track a disease which lasts for a certain number
-of rounds (e.g. an incubation period or an infectious period), you would need
+of rounds (e.g., an incubation period or an infectious period), you would need
 to add a property such as daysInfected which tracks how long they've been infected.
 
-Similarily, if you wanted to track immunity, you would need a property that shows
-whether people are susceptible or immune (i.e. succeptibility or immunity) */
+Similarly, if you wanted to track immunity, you would need a property that shows
+whether people are susceptible or immune (i.e., susceptibility or immunity). */
+
 export const createPopulation = (size = 1600) => {
   const population = [];
   const sideSize = Math.sqrt(size);
@@ -61,6 +34,7 @@ export const createPopulation = (size = 1600) => {
       x: (100 * (i % sideSize)) / sideSize, // X-coordinate within 100 units
       y: (100 * Math.floor(i / sideSize)) / sideSize, // Y-coordinate scaled similarly
       infected: false,
+      daysInfected: 0,
     });
   }
   // Infect patient zero...
@@ -74,23 +48,23 @@ const updateIndividual = (person, contact, params) => {
   // Add some logic to update the individual!
   // For example...
   if (person.infected) {
-    // If they were already infected, they are no longer
-    // newly infected :)
-    person.newlyInfected = false;
-  }
-  if (contact.infected) {
-    if (Math.random() * 100 < params.infectionChance) {
-      if (!person.infected) {
+    person.daysInfected += 1;
+    if (person.daysInfected >= params.incubationPeriod) {
+      person.newlyInfected = false;
+    }
+  } else {
+    if (contact.infected && contact.daysInfected >= params.incubationPeriod) {
+      if (Math.random() * 100 < params.infectionChance) {
         person.newlyInfected = true;
+        person.infected = true;
       }
-      person.infected = true;
     }
   }
 };
 
 // Example: Update population (students decide what happens each turn)
 export const updatePopulation = (population, params) => {
-  // Include "shufflePopulation if you want to shuffle...
+  // Include shufflePopulation if you want to shuffle...
   // population = shufflePopulation(population);
   // Example logic... each person is in contact with the person next to them...
   for (let i = 0; i < population.length; i++) {
@@ -104,14 +78,13 @@ export const updatePopulation = (population, params) => {
   return population;
 };
 
-
 // Stats to track (students can add more)
 // Any stats you add here should be computed
 // by Compute Stats below
 export const trackedStats = [
   { label: "Total Infected", value: "infected" },
+  { label: "Newly Infected", value: "newlyInfected" },
 ];
-
 
 // Example: Compute stats (students customize)
 export const computeStatistics = (population, round) => {
@@ -127,4 +100,3 @@ export const computeStatistics = (population, round) => {
   }
   return { round, infected, newlyInfected };
 };
-

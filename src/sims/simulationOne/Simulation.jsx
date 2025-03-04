@@ -141,6 +141,23 @@ const Simulation = () => {
             {simulationParameters.infectionChance}%
           </label>
           <label>
+          incubation Period:
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value={simulationParameters.incubationPeriod}
+              onChange={(e) =>
+                setSimulationParameters({
+                  ...simulationParameters,
+                  incubationPeriod: parseFloat(e.target.value),
+                })
+              }
+            />
+            {simulationParameters.incubationPeriod}%
+          </label>
+          <label>
             Population:
             <div className="vertical-stack">
               {/* Population uses a "square" size to allow a UI that makes it easy to slide
