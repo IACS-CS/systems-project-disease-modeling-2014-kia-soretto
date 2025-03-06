@@ -32,7 +32,9 @@ const maybeInfectPerson = (person, params) => {
   person.incubationCountdown = params.incubationPeriod;
 };
 
-export const updatePopulation = (population, params) => {
+
+
+export const updatePopulation = (population, params) => { // took this from handshake game
   const shuffledPopulation = shufflePopulation(population);
 
   // Iterate through the shuffled population in pairs
@@ -57,7 +59,7 @@ export const updatePopulation = (population, params) => {
     personA.partner = personB;
     personB.partner = personA;
 
-    // Infection logic:
+    // Infection logic:   AI helped with this logic
     // Only someone who has finished their incubation (i.e. incubationCountdown === 0) is infectious.
     if (personA.infected && personA.incubationCountdown === 0 && !personB.infected) {
       maybeInfectPerson(personB, params);
@@ -100,7 +102,7 @@ export const computeStatistics = (population, round) => {
   for (let p of population) {
     if (p.infected) {
       infected += 1;
-      // We consider a person infectious only when they have finished incubating.
+      // consider if a person is infectious only when they have finished incubating.
       if (p.incubationCountdown === 0) {
         infectious += 1;
       }
